@@ -1,0 +1,184 @@
+//*******************1.inheritance/THIS**********************
+/*class A;
+  int data;
+  byte b;
+  
+  //function new(int a1,byte b1);
+ // data=a1;
+ //   b=b1;
+ // endfunction
+  
+  function new(int data,byte b);
+  data=this.data;
+    b=this.b;
+  endfunction
+endclass*/
+//************************2..*********************************
+/*class A#(type t=int);
+  t data;
+  t b;
+endclass
+class B#(type t=int) extends A#(t);
+  t data_1;
+  t b_1;
+endclass
+class C#(type t=int) extends B#(t);
+  t data_2;
+  t b_2;
+endclass
+class D#(type t=int) extends C#(t);
+  t data_2;
+  t b_2;
+  function new(int data,byte b);
+  data=this.data;
+    b=this.b;
+  endfunction
+endclass
+//***********************3.upcasting,$cast*****************
+class base_driver;
+  int data;
+  byte b;
+ virtual task reset_signal;
+ // task reset_signal;
+    $display("base_driver_reset");
+  endtask
+ // virtual task run_main();
+  task run_main();
+    $display("base_driver_run");
+  endtask
+ //virtual task drive();
+   task drive();
+    reset_signal;
+    run_main();
+  endtask
+endclass
+///////////////
+class my_driver extends base_driver ();
+  int data;
+  byte b;
+  task reset_signal;
+    $display("my_driver_reset");
+  endtask
+  task run_main();
+    $display("my_driver_run");
+  endtask
+  task drive();
+    //reset_signal;
+    //run_main();
+    super.drive();
+  endtask
+endclass*/
+//************4.local/protected with parameterized classs*************
+
+class base_driver#(type t =int);
+//  local int data;
+  protected t data;
+  //local byte b;
+  t b;
+ virtual task reset_signal;
+  //task reset_signal;
+   data="1";
+   b="1";
+   $display("base_driver_reset %0s %0s",data,b);//can access local & protected both
+  endtask
+ // virtual task run_main();
+  task run_main();
+    $display("base_driver_run");
+  endtask
+ //virtual task drive();
+   task drive();
+    reset_signal;
+    run_main();
+  endtask
+endclass
+//
+//
+class my_driver#(type t=int) extends base_driver #(t);
+ // t data;//commeted bcoz it was giving error when drived from module
+  t b;
+  task reset_signal;
+    data="0";
+    b="0";
+    $display("my_driver_reset %s %s", data,b);
+  endtask
+  task run_main();
+    $display("my_driver_run");
+  endtask
+  task drive();
+    //reset_signal;
+    //run_main();
+    super.drive();
+    super.data="10";//can access protected data from drived class
+    $display("data using super keyword is %0s",super.data);
+  endtask
+endclass
+
+
+//******************************1..***********
+/*module tb;
+  A a;
+  initial begin
+    a=new(5,50);
+   a.data=5;
+   a.b=50;
+    $display("with this",a.data,a.b);        end
+  
+endmodule
+//****************2.********************
+module tb;
+  initial begin
+    B#(string) a=new();
+    C # (bit[3:0]) c=new();
+   a.data_1="5";
+   a.b_1="50";
+    c.data_2=4'b1100;
+    c.b_2=4'b1001;
+    $display("with this keyword in hierarchy %b %b",c.data_2,c.b_2);
+    $display("with this keyword in hierarchy %s %s",a.data_1,a.b_1);        end
+  
+endmodule
+//*****************......3.......******************
+module tb;
+  initial begin
+    base_driver b1;
+    my_driver d1,d2;
+   
+    d2=new();
+   b1=d2;//upcasting
+    //d1=b1;
+    if($cast(d1,b1))
+      d1.drive() ;
+      else 
+       $display("ab"); 
+    //
+    //b1.drive();
+   // b1.drive();
+    d1.data=10;
+    d1.b=50;
+   // $display("with this keyword in hierarchy %b %b",c.data_2,c.b_2);
+    $display("without this keyword in hierarchy %d %d",d1.data,d1.b);        end
+  
+endmodule*/
+/////////*****....4.local.protected..***************
+module tb;
+  initial begin
+    base_driver #(string)b1;
+    my_driver #(string) d1,d2;
+   
+    d2=new();
+   b1=d2;//upcasting
+    //d1=b1;
+    if($cast(d1,b1))
+      d1.drive() ;
+      else 
+       $display("ab"); 
+    //
+    //b1.drive();
+   // b1.drive();
+    d1.data="100";//overriding the derived class variable
+   // d1.b=50;
+   // $display("with this keyword in hierarchy %b %b",c.data_2,c.b_2);
+    $display("without this keyword in hierarchy is %s",d1.data);  
+  end
+  
+endmodule
