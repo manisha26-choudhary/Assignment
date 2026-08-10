@@ -1,0 +1,38 @@
+/*`timescale 100ns/100ns
+module P;
+  int a;
+  initial begin
+    
+    //$timeformat(-9,2,"ns", 0);
+    #8.97 a=20;
+    $display("time is %0t, real time is %0f, a is %0d",$time,$realtime,a);//9*10
+  end
+endmodule*/
+//////////////
+module test(out);
+output out;
+`define wow
+`define nest_one
+`define second_nest
+ `define nest_two
+  `ifdef wow
+  	initial $display("wow is defined");
+    `ifdef nest_one
+       initial $display("nest_one is defined");
+  		`ifdef nest_two
+ 		   initial $display("nest_two is defined");
+        `else
+ 		   initial $display("nest_two is not defined");
+        `endif
+    `else
+   	 initial $display("nest_one is not defined");
+    `endif
+  `else
+    initial $display("wow is not defined");
+    `ifdef second_nest
+       initial $display("second_nest is defined");
+    `else
+       initial $display("second_nest is not defined");
+    `endif
+ `endif
+endmodule 
