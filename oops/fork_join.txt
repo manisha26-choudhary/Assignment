@@ -1,0 +1,153 @@
+//*************1.fork_join_none inside for loop****************
+/*module tb;
+  int i;
+  initial begin
+    
+      for(i=0;i<3;i++) begin 
+        fork
+        $display("i=%0d", i );
+      
+    join_none
+      end
+  end
+endmodule
+//**************2.for loop inside fork-join_none******************
+module tb_1;
+  int i;
+  initial begin
+    fork
+      for(i=0;i<3;i++) begin 
+      
+        $display("i=%0d", i );
+      end
+      
+    join_none
+  end
+endmodule
+//******************3.fork-join_none+wait_f***********************
+module tb;
+  int i;
+  initial begin
+    
+      for(i=0;i<3;i++) begin 
+        fork
+         // automatic int j=i;
+          #10;
+         // $display("j=%0d", j );
+      $display("i=%0d", i );
+    join_none
+      end
+      wait fork;
+        $display("time=%0t", $time );
+  end
+endmodule*/
+//****************
+/*module tb;
+  int i;
+  initial begin
+    
+      for(i=0;i<3;i++) begin 
+        fork
+          automatic int j=i;
+          begin
+            #10;
+          #10 $display("j=%0d at time=%0t" , j,$time );
+          end
+          begin
+            #02;
+          #01 $display("i=%0d at time=%0t", i,$time );
+          end
+        join
+      end
+        $display("wait" );
+     // wait fork;
+        $display("time=%0t", $time );
+  end
+endmodule
+//***********process_class**************
+module tb;
+   int i;
+   process p[$];
+  initial begin
+    fork
+ 
+  begin:my_block
+   
+      p.push_back(process::self());
+    $display("started and i=%0d",i);
+  end
+      begin : next
+    p[0].suspend();
+        $display("suspended and and i=%0d",i);
+     // disable my_block;
+      #50 p[0].resume();
+        $display("resumed and i=%0d",i);
+    end
+
+    join
+  end
+endmodule*/
+///*************************************************
+module tb;
+  int i;
+  initial begin
+    
+      fork
+        begin
+          fork 
+            begin
+          #10;
+              $display("fork1-t1" );
+            end
+              begin
+         
+          #20;
+                $display("fork1-t2" );
+              end
+            
+          join
+        $display("fork1" );  
+        end
+        
+        begin
+          fork 
+            begin
+         
+          #10;
+              $display("fork2-t1" );
+            end
+              begin
+         
+          #20;
+                $display("fork2-t2" );
+              end
+            
+    join
+           $display("fork2" );  
+      end
+        
+         begin
+          fork 
+            begin
+         
+          #5;
+              $display("fork3-t1" );
+            end
+              begin
+         
+          #20;
+                $display("fork3-t2" );
+              end
+            
+          join_none
+          // disable fork;
+           $display("fork3" );  
+      end
+           join
+     //disable fork;
+        $display("time=%0t", $time );
+  end
+endmodule
+  
+
+
