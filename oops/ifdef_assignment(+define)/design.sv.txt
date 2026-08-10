@@ -1,0 +1,204 @@
+//************************1.ifdef_assignment(+define)**************************************
+
+/*module mux(
+ input logic b,s,en,
+  input logic [1:0]a,
+  output logic[3:0] f
+  );
+  
+  `ifdef MUX
+  always@(*) begin 
+  if(s==1)
+    f={3'b000, a[0]};
+  //$display("mux_case_1_state");
+  	else
+    f={3'b000, b};  
+ // $display("mux_case_2_state");
+  end
+//endmodule
+`else
+//module decoder();
+  always @(*) begin
+  if (en==1)begin
+    case(a)
+      2'b00: f=4'b0001;
+      2'b01: f=4'b0010;
+      2'b10: f=4'b0100;
+      2'b11: f=4'b1000;
+      default : f=4'b0000;
+    endcase
+    //$display("decoder_case_state");
+  end
+    else
+      f=4'b0000;
+  //  $display("decoder_default_case_state");
+  end
+  `endif
+endmodule*/
+
+//****************************2.`define********************************
+/*`define MAX(a,b)((a)>(b))?(a):(b)
+module max;
+  int a=5;
+  int b=4;
+  
+  initial begin
+    $display("maximum number is %0d",`MAX(a,b));
+  end
+endmodule*/
+//*********************3.export/import in pkg..*****************************
+/*package pkg_1;
+//int b=5;
+//int c=2;
+function int max(int b,int c);
+  return b+c;
+endfunction
+endpackage
+
+package pkg_2;
+import pkg_1::*;
+export pkg_1::*;
+function void test;
+  $display("maximum value is %0d",max(2,3));
+endfunction
+endpackage
+module tb;
+  import pkg_2::*;
+  
+initial begin
+  test();
+  //$display("maximum value is %0d",pkg_1::max(2,3));
+end
+  
+endmodule*/
+//*********4.import_function_from module to class via interface using export********
+/*interface intf;
+  extern function int add(int a,int b);
+    //return a+b;
+  //endfunction
+    modport DUT_m(export add);
+    modport TB_m(import function int add(int a,int b));
+endinterface
+               
+module addition(intf.DUT_m ab);
+  function int ab.add(int a,int b);
+    return a+b;
+  endfunction
+endmodule
+
+class test;
+  //import intf::*;
+  virtual intf.TB_m tb ;
+  function new( virtual intf.TB_m tb);
+    this.tb=tb;
+  endfunction
+  task run_test();
+    $display("value is %0d",tb.add(4,5));
+  endtask
+endclass*/
+//*********5.queue*******************************************************
+/*interface intf(input logic clk);
+  
+  logic reset;
+  logic [7:0] a,b;
+  logic [7:0] a1,b1;
+  
+  int data_q[$];//queue
+  
+  extern function int add(int a, int b);
+  extern function int mul(int a, int b);
+  extern function int addition(int a1, int b1);
+  extern function int multiple(int a1, int b1); 
+    
+    modport m_expo(input clk, reset, a,b, output a1,b1,ref data_q, export add, export mul);//ref data_q to expose queue for modulem & n
+  modport m_import(import function int add(int a, int b),import function int mul(int a, int b) );    
+  modport n_expo(input clk, reset, a1,b1, output a,b, ref data_q, export addition, export multiple);   
+  modport n_import(import function int addition(int a1, int b1), import function int multiple(int a1, int b1));   
+endinterface
+    
+module m(intf.m_expo m_expo);
+  always_comb begin 
+    m_expo.a1=m_expo.a + m_expo.b;
+    m_expo.b1=m_expo.a * m_expo.b;
+    
+    m_expo.data_q.push_back(m_expo.a1);
+    m_expo.data_q.push_back(m_expo.b1);   
+  end
+  function int m_expo.add(int a, int b);
+    return a+b;
+  endfunction
+  function int m_expo.mul(int a, int b);
+    return a*b;
+  endfunction
+endmodule
+
+module n(intf.n_expo n_expo);
+  int q_a1, q_a2;//Port 'b1' of modport 'n_expo' has been restricted as an input port
+  always_comb begin
+    if(n_expo.data_q.size()>=2) begin //without this module n also working same as module m
+    q_a1= n_expo.data_q.pop_front();
+    q_a2= n_expo.data_q.pop_front();
+    
+    n_expo.a= q_a1 * q_a2;
+    n_expo.b= q_a1 + q_a2;
+  end
+  end
+  function int n_expo.addition(int a1, int b1);
+    return a1+b1;
+  endfunction
+  function int n_expo.multiple(int a1, int b1);
+    return a1*b1;
+   endfunction
+endmodule  
+
+class test;
+  virtual intf.m_import m1;
+  virtual intf.n_import n1;
+  function new(virtual intf.m_import m1 , virtual intf.n_import n1);
+    this.m1=m1;
+    this.n1=n1;
+  endfunction
+  task run_test();
+    int a1,b1;
+    repeat(5) begin 
+      int a=$urandom_range(0,10); 
+      int b=$urandom_range(0,10);
+      a1=m1.add(a,b); 
+      b1=m1.mul(a,b);
+      $display("value of a and b is %0d, %0d ", a, b);
+      $display("1.addition a1 is %0d ",m1.add(a,b));
+      $display("1.multiplication b1 is %0d ",m1.mul(a,b));
+      $display("2.addition b is %0d ",n1.addition(a1,b1));
+      $display("2.multiplication a is %0d ",n1.multiple(a1,b1));
+    end
+  endtask
+endclass*/
+//**************6.task from module to class via export in interface***************
+/*interface intf(input logic clk);
+  extern task add(input int a,int b, ref int sum);
+    modport dut_m(export add);
+    modport tb_m(import  task add(input int a,int b,ref int sum));
+endinterface
+module a(intf.dut_m dut_m);
+  task dut_m.add(input int a,int b, ref int sum);
+    sum=a+b;
+  endtask
+  
+endmodule
+class b;
+  virtual intf.tb_m tb ;
+  function new( virtual intf.tb_m tb);
+    this.tb=tb;
+  endfunction
+  task run_test();
+    int result;
+    repeat(5) begin
+      int a=$urandom_range(0,10);
+      int b=$urandom_range(5,60);
+      tb.add(a,b,result);
+      $display("value of a=%0d, b=%0d and sum is %0d",a,b,result);
+    end
+  endtask
+  
+endclass*/
+//*************7.*************

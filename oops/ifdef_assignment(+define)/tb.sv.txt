@@ -1,0 +1,51 @@
+//********************1.*******************************
+/*`timescale 1ns/1ps
+module tb;
+  `ifdef MUX
+ // logic a,b,s,f;
+  initial begin
+   $display("mux_case_1_state"); 
+  end
+  `else
+  initial begin
+  $display("decoder_case_state");
+  end
+  `endif
+endmodule*/
+//**************4.************************************
+/*module testbench;
+  intf intf();
+  addition dut(intf);
+  test c;
+  initial begin
+    c=new(intf);
+    c.run_test();
+  end 
+endmodule*/
+//******************************5.queue***************
+/*module tb;
+  intf intf();
+  m dut(intf);
+  n dut1(intf);
+  test t;
+  initial begin
+    t=new(intf.m_import, intf.n_import );
+    t.run_test();
+  end
+
+endmodule*/
+//*****6.task from module to class via export in interface****
+/*module tb;
+  intf intf(clk);
+  a dut(intf);
+  b b;
+  initial begin
+    b=new(intf);
+    b.run_test();
+  end
+endmodule*/
+//********7.*********************
+
+
+
+
