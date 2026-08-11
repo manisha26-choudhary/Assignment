@@ -33,4 +33,33 @@ endmodule
   logic [data_width - 1:0] data_store[0:ram_depth - 1]; 
 //the rest of the ram model 
 endmodule: ram_model*/
+//***********************Background processes spawned by function calls*************************
+/*module tb;
+  class IntClass;
+   int a;
+  endclass 
+IntClass address=new(), stack=new();
+function automatic bit watch_for_zero(IntClass p);
+  fork 
+    forever @p.a begin 
+      if (p.a == 0) $display ("Unexpected zero");
+  end 
+  join_none 
+  return (p.a == 0);
+endfunction 
+function bit start_check();
+  return (watch_for_zero(address) | watch_for_zero(stack));
+endfunction 
+//bit y = watch_for_zero(stack);
+initial if (start_check()) 
+  $display ("OK");
+initial fork 
+  if (start_check())
+    $display("OK too");
+join_none 
+  
+endmodule*/
+
+
+
 
