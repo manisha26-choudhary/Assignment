@@ -97,6 +97,139 @@ endmodule
 
 
 
+//******************static vs automatic function******
+module static_automatic;
+  function int static_fun();
+    static int count = 0;
+    count++;
+    return count;
+  endfunction
+  function automatic int automatic_fun();
+    //static int count = 0;
+    static int count = 0;
+    count++;
+    return count;
+  endfunction
+  initial begin 
+    $display("static : %0d", static_fun());
+    $display("static : %0d", static_fun());
+    $display("static : %0d", static_fun());
+    $display("automatic : %0d", automatic_fun());
+    $display("automatic : %0d", automatic_fun());
+    $display("automatic : %0d", automatic_fun());
+  end
+endmodule
+//****************function with class argument and class return type************
+class packet;
+  int data;
+  int addr;
+  function new(int data=0, int addr=o);
+    this.data=data;
+    this.addr=addr;
+  endfunction
+  module class_function;
+    packet p1;
+    packet p2;
+    function automatic packet process_packet(packet p);
+      packet temp;
+      temp=new();
+      temp.data=p.data+10;
+      temp.addr=p.addr+100;
+      return temp;
+    endfunction
+    initial begin
+      p1=new(10,399);
+      p2=process_packet(p1);
+      $display("original data=%0d", p1.data);
+      $display("original addr=%0d", p1.addr);
+      $display("returned data=%0d", p2.data);
+      $display("returned addr=%0d", p2.addr);
+    end
+  endmodule*/
+//*************
+  module function_argument;
+    
+    function automatic int add(int a, int b);
+      return a+b;
+    endfunction
+    
+    function automatic int cal(input int a,b,c,d);
+     
+      return add(add(a,b),add(c,d));
+    endfunction
+      initial begin
+        $display("addition is %0d",cal(1,2,3,4));
+      end
+  endmodule
+                 
+ //multiple arguments                
+                 
+module variable_arguments;
+  function automatic int sum(input int values[]);
+    int total =0;
+    foreach (values[i])
+      total += values[i];
+    return total;
+  endfunction
+  initial begin
+    int a[3]='{10,20,30};
+    int b[5]='{1,2,3,4,5};
+    $display("sum a is %0d",sum(a));
+    $display("sum b is %0d",sum(b));
+  end
+endmodule
+      // returning da
+module da;
+ /* function automatic int[] create_array();
+    int arr[];
+    arr=new[5];
+    foreach (arr[i])
+      arr[i]=i*10;
+    return arr;
+  endfunction*/
+  
+ /* function automatic int[$] create_array();
+    int q[$];
+    q.push_back(10);
+    q.push_back(20);
+    q.push_back(1);
+    q.push_back(30);
+    return q;
+  endfunction*/
+  typedef int aa_t[string];
+  function automatic aa_t create_array();
+  //function automatic int[string] create_array();
+    aa_t aa;
+   // int aa[string];
+    aa["one"]=10;
+    aa["two"]=20;
+    aa["three"]=30;
+    aa["four"]=1;
+    return aa;
+  endfunction
+  
+  initial begin 
+   // int result[];
+    //int result[$];
+    int result[string];
+    result=create_array();
+    foreach (result[i])
+      $display("result[%0d]=%0d", i,result[i]);
+  end
+endmodule
+      
+    
+      
+  
+                 
+      
+
+    
+  
+  
+
+
+
 
 
 
